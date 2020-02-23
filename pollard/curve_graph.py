@@ -1,10 +1,22 @@
-import sage.all as sg
-from pollard.walk import *
+import os
+from walk import PolynomialFunction, GeneralWalk
 import random
 import logging
 import json
 
 logger = logging.getLogger("CurveGraph")
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
+
+# set sage variables if not already set so that the script can run in directly in the python interpreter
+if 'SAGE_ROOT' not in os.environ:
+    os.environ['SAGE_ROOT'] = '/usr/share/sagemath'
+    logger.info("Setting 'SAGE_ROOT' to '{}'.".format(os.environ['SAGE_ROOT']))
+if 'SAGE_LOCAL' not in os.environ:
+    os.environ['SAGE_LOCAL'] = '/usr/share/sagemath'
+    logger.info("Setting 'SAGE_LOCAL' to '{}'.".format(os.environ['SAGE_LOCAL']))
+
+
+import sage.all as sg
 
 
 class CurveGraph:
@@ -67,7 +79,7 @@ class CurveGraph:
         while len(stack) > 0:
             c += 1
             if c > len(self.points):
-                raise RecursionError
+                raise RuntimeError
 
             x, d = stack.pop()
             component.append(x)
@@ -84,7 +96,7 @@ class CurveGraph:
     def analyze(self):
         logger.info("Analyzing the graph...")
 
-        unvisited = [*range(0, len(self.points))]
+        unvisited = list(range(0, len(self.points)))
         stats = {
             "graph_size": len(self.points),
             "num_components": None,
@@ -122,9 +134,8 @@ class CurveGraph:
 
 if __name__ == "__main__":
     print("hello")
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
 
-    gf = sg.GF(100003)
+    gf = sg.GF(1009)
     e = sg.EllipticCurve(gf, [1, 2])
 
     s = e.random_point()
